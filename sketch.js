@@ -8,9 +8,9 @@
 
 
 
-var tempo = 60; //à la noire, rond vert = double croche
+var tempo = 45; //à la noire, rond vert = double croche
 var debitRythmique = 15000/tempo;
-var nombreTemps = 12;
+var nombreTemps = 8;
 var nombreVoix = 5;
 var voix = [];
 var frequences = [];
@@ -33,7 +33,7 @@ function setup()
     buttonRandomize = createButton("randomize");
     buttonRandomize.mousePressed(randomize);
     buttonErase = createButton("erase");
-    buttonErase.mousePressed(erase);
+    buttonErase.mousePressed(eraseVoice);
     buttonPlayPause = createButton("play/stop");
     buttonPlayPause.mousePressed(playStop);
     var base = pow(2,1/12); // 2^(1/12)
@@ -90,7 +90,7 @@ function randomize()
     }
 }
 
-function erase()
+function eraseVoice()
 {
     for (var i=0; i<nombreVoix; i++)
     {
@@ -99,8 +99,21 @@ function erase()
     }
 }
 
-function playStop()
-{
+function playStop() {
+    // Ensure audio context is started on user interaction
+    if (getAudioContext().state !== 'running') {
+        getAudioContext().resume().then(() => {
+            console.log("Audio context resumed");
+            togglePlay();  // Call the function that actually starts/stops the sound
+        }).catch((e) => {
+            console.error("Failed to resume audio context: ", e);
+        });
+    } else {
+        togglePlay();  // If audio context is already running, toggle play/stop
+    }
+}
+
+function togglePlay() {
     playing = !playing;
     if (playing)
     {
